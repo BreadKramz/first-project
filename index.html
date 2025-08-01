@@ -3,283 +3,129 @@
 <head>
   <meta charset="UTF-8">
   <title>Kramz Quiz</title>
-  <style>
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
-
-    body {
-      font-family: 'Segoe UI', sans-serif;
-      background: linear-gradient(135deg, #000000, #434343);
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      min-height: 100vh;
-      padding: 20px;
-    }
-
-    .container {
-      background: #fff;
-      padding: 30px;
-      border-radius: 15px;
-      width: 100%;
-      max-width: 500px;
-      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
-      transition: all 0.3s ease;
-      animation: fadeIn 0.6s ease;
-    }
-
-    @keyframes fadeIn {
-      from { opacity: 0; transform: scale(0.95); }
-      to { opacity: 1; transform: scale(1); }
-    }
-
-    h2 {
-      text-align: center;
-      margin-bottom: 20px;
-      color: #333;
-    }
-
-    .options {
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-    }
-
-    .option {
-      padding: 12px;
-      background: #f5f5f5;
-      border: none;
-      border-radius: 8px;
-      font-size: 16px;
-      cursor: pointer;
-      transition: background 0.3s, transform 0.1s;
-    }
-
-    .option:hover {
-      background: #e0e0e0;
-    }
-
-    .option:active {
-      transform: scale(0.98);
-    }
-
-    #next-btn, .start-btn {
-      margin-top: 20px;
-      width: 100%;
-      padding: 12px;
-      background: #2196f3;
-      color: white;
-      border: none;
-      font-size: 16px;
-      border-radius: 8px;
-      cursor: pointer;
-      transition: background 0.3s;
-    }
-
-    #next-btn:hover, .start-btn:hover {
-      background: #1976d2;
-    }
-
-    #feedback, #timer, #question-counter {
-      margin-top: 15px;
-      text-align: center;
-      font-weight: bold;
-    }
-
-    #timer {
-      color: #ff5722;
-    }
-
-    #feedback {
-      color: #4caf50;
-    }
-
-    .start-screen, .quiz-container {
-      display: none;
-      flex-direction: column;
-    }
-
-    .show {
-      display: flex !important;
-    }
-
-    @media (max-width: 500px) {
-      .container {
-        padding: 20px;
-      }
-      .option {
-        font-size: 15px;
-      }
-    }
-  </style>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-  <!-- 🎵 Background Music (will play on Start) -->
-  <audio id="bg-music" loop>
-    <source src="Jeopardy Theme.mp3" type="audio/mpeg">
-    Your browser does not support the audio element.
-  </audio>
+<audio id="bg-music" loop>
+  <source src="Jeopardy Theme.mp3" type="audio/mpeg">
+</audio>
 
-  <div class="container">
-    <div class="start-screen show" id="start-screen">
-      <h2>🎉 Welcome to the Kramz Quiz!</h2>
-      <p style="text-align: center; margin: 10px 0;">Test to see if you know me!</p>
-      <button class="start-btn" onclick="startQuiz()">Start Quiz</button>
-    </div>
+<div class="container fade-panel">
 
-    <div class="quiz-container" id="quiz">
-      <div id="question-counter">Question 1 of 4</div>
-      <div id="timer">Time: 10</div>
-      <h2 id="question">Question here...</h2>
-      <div class="options">
-        <button class="option" onclick="selectAnswer(0)">Option 1</button>
-        <button class="option" onclick="selectAnswer(1)">Option 2</button>
-        <button class="option" onclick="selectAnswer(2)">Option 3</button>
-        <button class="option" onclick="selectAnswer(3)">Option 4</button>
-      </div>
-      <div id="feedback"></div>
-      <button id="next-btn" onclick="nextQuestion()">Next</button>
-    </div>
+  <!-- Start Screen -->
+  <div class="start-screen show" id="start-screen">
+    <h2>🎉 Welcome to the Kramz Quiz!</h2>
+    <p style="text-align: center; margin: 10px 0;">Test to see if you know me!</p>
+    <button class="start-btn" onclick="startQuiz()">▶ Start Quiz</button>
+    <button class="settings-btn" onclick="toggleAddQuestion()">➕ Add Question</button>
+    <button class="settings-btn" onclick="toggleSettings()">⚙️ Settings</button>
+    <button class="settings-btn" onclick="openFeedbackPanel()">💬 Feedback</button>
+    <button class="admin-btn" onclick="showAdminLogin()">👨🏻‍💼 Admin Login</button>
   </div>
 
-  <script>
-    const quizData = [
-      {
-        question: "What is my name?",
-        options: ["Gwapo", "Pogi", "Kramz", "Mark"],
-        answer: 3
-      },
-      {
-        question: "How old am I?",
-        options: ["19", "20", "22", "21"],
-        answer: 1
-      },
-      {
-        question: "Is my website good?",
-        options: ["No", "No", "Yes", "No"],
-        answer: 2
-      },
-      {
-        question: "Favorite programming language?",
-        options: ["Python", "HTML", "CSS", "JavaScript"],
-        answer: 3
-      }
-    ];
+  <!-- Feedback Panel -->
+  <div class="quiz-container" id="feedback-panel">
+    <h2>💬 Feedback / Suggestions</h2>
+    <textarea id="feedback-text" placeholder="Write your suggestions here..." style="width:100%; height:100px; padding:8px; border-radius:6px; border:1px solid #ccc;"></textarea>
+    <button class="start-btn" onclick="submitFeedback()">Submit Feedback</button>
+    <button class="start-btn" onclick="backToStart()">Back</button>
+    <p id="feedback-message" style="text-align:center; margin-top:10px;"></p>
+  </div>
 
-    let shuffledQuiz = [];
-    let currentQuestion = 0;
-    let score = 0;
-    let currentCorrectIndex = 0;
-    let timer;
-    let timeLeft = 10;
+  <!-- Add Question -->
+  <div class="add-question-screen" id="add-question-screen">
+    <h2>Add Your Own Question</h2>
+    <input type="text" id="new-question" placeholder="Enter your question">
+    <div id="choices-container">
+      <input type="text" class="choice-input" placeholder="Choice 1">
+      <input type="text" class="choice-input" placeholder="Choice 2">
+      <input type="text" class="choice-input" placeholder="Choice 3">
+      <input type="text" class="choice-input" placeholder="Choice 4">
+    </div>
+    <label for="correct-answer">Correct Answer (1-4):</label>
+    <input type="number" id="correct-answer" min="1" max="4">
+    <button class="start-btn" onclick="addCustomQuestion()">Add Question</button>
+    <button class="start-btn" onclick="backToStart()">Back</button>
+    <p id="add-feedback" style="text-align:center; margin-top: 10px;"></p>
+  </div>
 
-    function shuffle(array) {
-      for (let i = array.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [array[i], array[j]] = [array[j], array[i]];
-      }
-      return array;
-    }
+  <!-- Settings -->
+  <div class="settings-screen" id="settings-screen">
+    <h2>Settings</h2>
+    <label for="num-choices">Number of choices:</label>
+    <select id="num-choices">
+      <option value="2">2</option>
+      <option value="3">3</option>
+      <option value="4" selected>4</option>
+    </select>
+    <div class="toggle">
+      <label>Background Music:</label>
+      <input type="checkbox" id="music-toggle" checked>
+    </div>
+    <button class="start-btn" onclick="backToStart()">Back</button>
+  </div>
 
-    function startQuiz() {
-      const music = document.getElementById("bg-music");
-      music.play().catch(err => {
-        console.log("Autoplay blocked until user interacts:", err);
-      });
+  <!-- Quiz -->
+  <div class="quiz-container" id="quiz">
+    <div id="question-counter">Question 1 of 4</div>
+    <div id="timer">Time: 10</div>
+    <h2 id="question">Question here...</h2>
+    <div class="options" id="options-container"></div>
+    <div id="feedback"></div>
+    <button id="next-btn" onclick="nextQuestion()">Next</button>
+  </div>
 
-      document.getElementById("start-screen").classList.remove("show");
-      document.getElementById("quiz").classList.add("show");
-      shuffledQuiz = shuffle([...quizData]);
-      loadQuestion();
-    }
+  <!-- Score Screen -->
+  <div class="quiz-container" id="score-screen">
+    <h2 style="text-align:center;" id="score-text">Your Score:</h2>
+    <p style="text-align:center; margin: 15px 0; font-weight: bold;" id="score-message"></p>
+    <button class="start-btn" onclick="returnToStart()">Try Again</button>
+  </div>
 
-    function loadQuestion() {
-      clearInterval(timer);
-      timeLeft = 10;
-      document.getElementById("timer").innerText = "Time: 10";
-      timer = setInterval(updateTimer, 1000);
+  <!-- Admin Login -->
+  <div id="admin-login" class="admin-login">
+    <h2>Admin Login</h2>
+    <input type="text" id="admin-username" placeholder="Username">
+    <input type="password" id="admin-password" placeholder="Password">
+    <p id="admin-feedback" style="text-align:center; color:red;"></p>
+    <button class="admin-btn" onclick="adminLogin()">Login</button>
+    <button class="start-btn" onclick="backToStart()">Back</button>
+  </div>
 
-      const q = shuffledQuiz[currentQuestion];
-      document.getElementById("question").innerText = q.question;
-      document.getElementById("feedback").innerText = "";
-      document.getElementById("question-counter").innerText = `Question ${currentQuestion + 1} of ${shuffledQuiz.length}`;
+  <!-- Admin Panel -->
+  <div id="admin-panel" class="admin-screen">
+    <h2>Admin Panel</h2>
+    <button class="view-questions-btn" onclick="goToViewPanel()">View Saved Questions</button>
+    <button class="clear-questions-btn" onclick="goToClearPanel()">Clear Saved Questions</button>
+    <button class="view-questions-btn" onclick="viewFeedbacks()">View Feedback</button>
+    <button class="start-btn" onclick="backToStart()">Back</button>
+  </div>
 
-      const correctText = q.options[q.answer];
-      const shuffledOptions = shuffle([...q.options]);
-      currentCorrectIndex = shuffledOptions.indexOf(correctText);
+  <div class="quiz-container" id="feedback-view-panel">
+    <h2>📋 All Feedback</h2>
+    <div id="feedback-list" style="max-height:200px; overflow-y:auto;"></div>
+    <button class="start-btn" onclick="backToAdminPanel()">Back</button>
+  </div>
 
-      const optionButtons = document.getElementsByClassName("option");
-      for (let i = 0; i < optionButtons.length; i++) {
-        optionButtons[i].innerText = shuffledOptions[i];
-        optionButtons[i].disabled = false;
-        optionButtons[i].style.background = "#f5f5f5";
-      }
 
-      document.getElementById("next-btn").style.display = "none";
-    }
+  <!-- View Panel -->
+  <div id="view-panel" class="quiz-container">
+    <h2>Saved Questions</h2>
+    <div id="questions-list-container" style="max-height: 200px; overflow-y: auto;"></div>
+    <button class="start-btn" onclick="backToAdminPanel()">Back</button>
+  </div>
 
-    function selectAnswer(index) {
-      clearInterval(timer);
-      const options = document.getElementsByClassName("option");
+  <!-- Clear Panel -->
+  <div id="clear-panel" class="quiz-container">
+    <h2>Clear All Saved Questions</h2>
+    <p>Are you sure you want to delete all saved questions?</p>
+    <button class="debug-btn" onclick="clearCustomQuestions()">Yes, Clear</button>
+    <button class="start-btn" onclick="backToAdminPanel()">Back</button>
+  </div>
 
-      for (let i = 0; i < options.length; i++) {
-        options[i].disabled = true;
-        options[i].style.background = (i === currentCorrectIndex) ? "#c8e6c9" : "#ffcdd2";
-      }
+</div>
 
-      if (index === currentCorrectIndex) {
-        score++;
-        document.getElementById("feedback").innerText = "✅ Correct!";
-        document.getElementById("feedback").style.color = "#4caf50";
-      } else if (index !== -1) {
-        document.getElementById("feedback").innerText = "❌ Wrong!";
-        document.getElementById("feedback").style.color = "#e53935";
-      }
-
-      document.getElementById("next-btn").style.display = "block";
-    }
-
-    function nextQuestion() {
-      currentQuestion++;
-      if (currentQuestion < shuffledQuiz.length) {
-        loadQuestion();
-      } else {
-        showScore();
-      }
-    }
-
-    function showScore() {
-      clearInterval(timer);
-      let message = score === shuffledQuiz.length
-        ? "🎉 Perfect Score!"
-        : score >= shuffledQuiz.length / 2
-        ? "👍 Good Job!"
-        : "📚 Keep Practicing!";
-
-      document.querySelector(".container").innerHTML = `
-        <div class="quiz-container show">
-          <h2 style="text-align:center;">Your Score: ${score} / ${shuffledQuiz.length}</h2>
-          <p style="text-align:center; margin: 15px 0; font-weight: bold;">${message}</p>
-          <button class="start-btn" onclick="location.reload()">Try Again</button>
-        </div>
-      `;
-    }
-
-    function updateTimer() {
-      timeLeft--;
-      document.getElementById("timer").innerText = `Time: ${timeLeft}`;
-      if (timeLeft === 0) {
-        clearInterval(timer);
-        selectAnswer(-1);
-        document.getElementById("feedback").innerText = "⏰ Time's up!";
-        document.getElementById("feedback").style.color = "#ff5722";
-        document.getElementById("next-btn").style.display = "block";
-      }
-    }
-  </script>
+<script src="script.js"></script>
 </body>
 </html>

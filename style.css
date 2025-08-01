@@ -1,0 +1,210 @@
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: 'Segoe UI', sans-serif;
+  background: linear-gradient(135deg, #000000, #434343);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  padding: 20px;
+}
+
+.container {
+  background: #fff;
+  padding: 30px;
+  border-radius: 15px;
+  width: 100%;
+  max-width: 500px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+  animation: fadeIn 0.6s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: scale(0.95); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+h2 {
+  text-align: center;
+  margin-bottom: 20px;
+  color: #333;
+}
+
+.options {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.option {
+  padding: 12px;
+  background: #f5f5f5;
+  border: none;
+  border-radius: 8px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: background 0.3s, transform 0.1s;
+}
+
+.option:hover {
+  background: #e0e0e0;
+}
+
+.option:active {
+  transform: scale(0.98);
+}
+
+#next-btn, .start-btn, .settings-btn {
+  margin-top: 20px;
+  width: 100%;
+  padding: 12px;
+  background: #2196f3;
+  color: white;
+  border: none;
+  font-size: 16px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+
+#next-btn:hover, .start-btn:hover, .settings-btn:hover {
+  background: #1976d2;
+}
+
+#feedback, #timer, #question-counter {
+  margin-top: 15px;
+  text-align: center;
+  font-weight: bold;
+}
+
+#timer {
+  color: #ff5722;
+}
+
+.start-screen, .quiz-container, .settings-screen, 
+.add-question-screen, .admin-login, .admin-screen, 
+.view-questions-screen {
+  display: none;
+  flex-direction: column;
+  opacity: 0;
+  animation: fadePanel 0.5s ease forwards;
+}
+
+.show {
+  display: flex !important;
+}
+
+@keyframes fadePanel {
+  from { opacity: 0; transform: translateY(15px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.toggle {
+  margin-top: 15px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+select {
+  margin-top: 10px;
+  padding: 8px;
+  font-size: 14px;
+  width: 100%;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+}
+
+@media (max-width: 500px) {
+  .container {
+    padding: 20px;
+  }
+  .option {
+    font-size: 15px;
+  }
+}
+
+#add-question-screen input,
+.admin-login input,
+.admin-screen input {
+  width: 100%;
+  padding: 8px;
+  margin: 5px 0;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+}
+
+.debug-btn, .admin-btn, 
+.clear-questions-btn, .view-questions-btn {
+  margin-top: 10px;
+  width: 100%;
+  padding: 10px;
+  color: white;
+  border: none;
+  font-size: 14px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+
+.debug-btn {
+  background: #9c27b0;
+}
+.debug-btn:hover {
+  background: #7b1fa2;
+}
+
+.admin-btn {
+  background: #607d8b;
+}
+.admin-btn:hover {
+  background: #455a64;
+}
+
+.clear-questions-btn {
+  background: #e53935;
+}
+.clear-questions-btn:hover {
+  background: #c62828;
+}
+
+.view-questions-btn {
+  background: #43a047;
+}
+.view-questions-btn:hover {
+  background: #2e7d32;
+}
+
+.view-questions-screen {
+  padding: 10px;
+  background: #f9f9f9;
+  border-radius: 8px;
+  margin-top: 10px;
+}
+
+.view-questions-screen ul {
+  list-style: none;
+  padding-left: 0;
+}
+
+.view-questions-screen li {
+  padding: 8px;
+  border-bottom: 1px solid #ccc;
+  font-size: 14px;
+}
+
+/* Smooth question list reveal */
+#questions-list-container div {
+  opacity: 0;
+  animation: fadeInQuestion 0.4s ease forwards;
+}
+
+@keyframes fadeInQuestion {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
