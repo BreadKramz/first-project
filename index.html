@@ -2,126 +2,231 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Simple Quiz App</title>
+  <title>Kramz Quiz</title>
   <style>
-    body {
-      font-family: Arial, sans-serif;
-      background: #f0f0f0;
-      display: flex;
-      justify-content: center;
-      padding: 50px;
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
     }
 
-    .quiz-container {
-      background: white;
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(135deg, #000000, #434343);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    .container {
+      background: #fff;
       padding: 30px;
-      border-radius: 10px;
-      width: 400px;
-      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      border-radius: 15px;
+      width: 100%;
+      max-width: 500px;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+      transition: all 0.3s ease;
+      animation: fadeIn 0.6s ease;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: scale(0.95); }
+      to { opacity: 1; transform: scale(1); }
     }
 
     h2 {
+      text-align: center;
       margin-bottom: 20px;
+      color: #333;
     }
 
     .options {
       display: flex;
       flex-direction: column;
+      gap: 10px;
     }
 
     .option {
-      margin: 5px 0;
-      padding: 10px;
-      background: #eee;
+      padding: 12px;
+      background: #f5f5f5;
       border: none;
+      border-radius: 8px;
+      font-size: 16px;
       cursor: pointer;
-      border-radius: 5px;
-      transition: 0.3s;
+      transition: background 0.3s, transform 0.1s;
     }
 
     .option:hover {
-      background: #d4d4d4;
+      background: #e0e0e0;
     }
 
-    #next-btn {
+    .option:active {
+      transform: scale(0.98);
+    }
+
+    #next-btn, .start-btn {
       margin-top: 20px;
-      padding: 10px;
-      background: #2196F3;
+      width: 100%;
+      padding: 12px;
+      background: #2196f3;
       color: white;
       border: none;
+      font-size: 16px;
+      border-radius: 8px;
       cursor: pointer;
-      border-radius: 5px;
+      transition: background 0.3s;
     }
 
-    #next-btn:hover {
-      background: #0b7dda;
+    #next-btn:hover, .start-btn:hover {
+      background: #1976d2;
     }
 
-    #score-container {
-      margin-top: 20px;
+    #feedback, #timer, #question-counter {
+      margin-top: 15px;
+      text-align: center;
       font-weight: bold;
+    }
+
+    #timer {
+      color: #ff5722;
+    }
+
+    #feedback {
+      color: #4caf50;
+    }
+
+    .start-screen, .quiz-container {
+      display: none;
+      flex-direction: column;
+    }
+
+    .show {
+      display: flex !important;
+    }
+
+    @media (max-width: 500px) {
+      .container {
+        padding: 20px;
+      }
+      .option {
+        font-size: 15px;
+      }
     }
   </style>
 </head>
 <body>
 
-  <div class="quiz-container" id="quiz">
-    <h2 id="question">Question text</h2>
-    <div class="options">
-      <button class="option" onclick="selectAnswer(0)">Option A</button>
-      <button class="option" onclick="selectAnswer(1)">Option B</button>
-      <button class="option" onclick="selectAnswer(2)">Option C</button>
-      <button class="option" onclick="selectAnswer(3)">Option D</button>
+  <div class="container">
+    <div class="start-screen show" id="start-screen">
+      <h2>🎉 Welcome to the Kramz Quiz!</h2>
+      <p style="text-align: center; margin: 10px 0;">Test to see if you know me!</p>
+      <button class="start-btn" onclick="startQuiz()">Start Quiz</button>
     </div>
-    <button id="next-btn" onclick="nextQuestion()">Next</button>
-    <div id="score-container"></div>
+
+    <div class="quiz-container" id="quiz">
+      <div id="question-counter">Question 1 of 4</div>
+      <div id="timer">Time: 10</div>
+      <h2 id="question">Question here...</h2>
+      <div class="options">
+        <button class="option" onclick="selectAnswer(0)">Option 1</button>
+        <button class="option" onclick="selectAnswer(1)">Option 2</button>
+        <button class="option" onclick="selectAnswer(2)">Option 3</button>
+        <button class="option" onclick="selectAnswer(3)">Option 4</button>
+      </div>
+      <div id="feedback"></div>
+      <button id="next-btn" onclick="nextQuestion()">Next</button>
+    </div>
   </div>
 
   <script>
     const quizData = [
       {
-        question: "What is the capital of France?",
-        options: ["Berlin", "London", "Paris", "Madrid"],
-        answer: 2
+        question: "What is my name?",
+        options: ["Gwapo", "Pogi", "Kramz", "Mark"],
+        answer: 3
       },
       {
-        question: "What is 2 + 2?",
-        options: ["3", "4", "2", "22"],
+        question: "How old am I?",
+        options: ["19", "20", "22", "21"],
         answer: 1
       },
       {
-        question: "Which language runs in a web browser?",
-        options: ["Java", "C", "Python", "JavaScript"],
+        question: "Is my website good?",
+        options: ["No", "No", "Yes", "No"],
+        answer: 2
+      },
+      {
+        question: "Favorite programming language?",
+        options: ["Python", "HTML", "CSS", "JavaScript"],
         answer: 3
       }
     ];
 
+    let shuffledQuiz = [];
     let currentQuestion = 0;
     let score = 0;
+    let currentCorrectIndex = 0;
+    let timer;
+    let timeLeft = 10;
+
+    function shuffle(array) {
+      for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+      }
+      return array;
+    }
+
+    function startQuiz() {
+      document.getElementById("start-screen").classList.remove("show");
+      document.getElementById("quiz").classList.add("show");
+      shuffledQuiz = shuffle([...quizData]);
+      loadQuestion();
+    }
 
     function loadQuestion() {
-      const q = quizData[currentQuestion];
+      clearInterval(timer);
+      timeLeft = 10;
+      document.getElementById("timer").innerText = "Time: 10";
+      timer = setInterval(updateTimer, 1000);
+
+      const q = shuffledQuiz[currentQuestion];
       document.getElementById("question").innerText = q.question;
-      const options = document.getElementsByClassName("option");
-      for (let i = 0; i < options.length; i++) {
-        options[i].innerText = q.options[i];
-        options[i].disabled = false;
-        options[i].style.background = "#eee";
+      document.getElementById("feedback").innerText = "";
+      document.getElementById("question-counter").innerText = `Question ${currentQuestion + 1} of ${shuffledQuiz.length}`;
+
+      const correctText = q.options[q.answer];
+      const shuffledOptions = shuffle([...q.options]);
+      currentCorrectIndex = shuffledOptions.indexOf(correctText);
+
+      const optionButtons = document.getElementsByClassName("option");
+      for (let i = 0; i < optionButtons.length; i++) {
+        optionButtons[i].innerText = shuffledOptions[i];
+        optionButtons[i].disabled = false;
+        optionButtons[i].style.background = "#f5f5f5";
       }
+
       document.getElementById("next-btn").style.display = "none";
     }
 
     function selectAnswer(index) {
-      const correct = quizData[currentQuestion].answer;
+      clearInterval(timer);
       const options = document.getElementsByClassName("option");
 
       for (let i = 0; i < options.length; i++) {
         options[i].disabled = true;
-        options[i].style.background = (i === correct) ? "#90ee90" : "#f08080";
+        options[i].style.background = (i === currentCorrectIndex) ? "#c8e6c9" : "#ffcdd2";
       }
 
-      if (index === correct) {
+      if (index === currentCorrectIndex) {
         score++;
+        document.getElementById("feedback").innerText = "✅ Correct!";
+        document.getElementById("feedback").style.color = "#4caf50";
+      } else if (index !== -1) {
+        document.getElementById("feedback").innerText = "❌ Wrong!";
+        document.getElementById("feedback").style.color = "#e53935";
       }
 
       document.getElementById("next-btn").style.display = "block";
@@ -129,7 +234,7 @@
 
     function nextQuestion() {
       currentQuestion++;
-      if (currentQuestion < quizData.length) {
+      if (currentQuestion < shuffledQuiz.length) {
         loadQuestion();
       } else {
         showScore();
@@ -137,14 +242,33 @@
     }
 
     function showScore() {
-      document.getElementById("quiz").innerHTML =
-        `<h2>Your Score: ${score} / ${quizData.length}</h2>
-         <button onclick="location.reload()">Restart Quiz</button>`;
+  clearInterval(timer);
+  let message = score === shuffledQuiz.length
+    ? "🎉 Perfect Score!"
+    : score >= shuffledQuiz.length / 2
+    ? "👍 Good Job!"
+    : "📚 Keep Practicing!";
+
+  document.querySelector(".container").innerHTML = `
+    <div class="quiz-container show">
+      <h2 style="text-align:center;">Your Score: ${score} / ${shuffledQuiz.length}</h2>
+      <p style="text-align:center; margin: 15px 0; font-weight: bold;">${message}</p>
+      <button class="start-btn" onclick="location.reload()">Try Again</button>
+    </div>
+  `;
+}
+
+    function updateTimer() {
+      timeLeft--;
+      document.getElementById("timer").innerText = `Time: ${timeLeft}`;
+      if (timeLeft === 0) {
+        clearInterval(timer);
+        selectAnswer(-1);
+        document.getElementById("feedback").innerText = "⏰ Time's up!";
+        document.getElementById("feedback").style.color = "#ff5722";
+        document.getElementById("next-btn").style.display = "block";
+      }
     }
-
-    // Start the quiz
-    loadQuestion();
   </script>
-
 </body>
 </html>
