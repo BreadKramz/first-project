@@ -118,6 +118,12 @@
 </head>
 <body>
 
+  <!-- 🎵 Background Music (will play on Start) -->
+  <audio id="bg-music" loop>
+    <source src="Jeopardy Theme.mp3" type="audio/mpeg">
+    Your browser does not support the audio element.
+  </audio>
+
   <div class="container">
     <div class="start-screen show" id="start-screen">
       <h2>🎉 Welcome to the Kramz Quiz!</h2>
@@ -180,6 +186,11 @@
     }
 
     function startQuiz() {
+      const music = document.getElementById("bg-music");
+      music.play().catch(err => {
+        console.log("Autoplay blocked until user interacts:", err);
+      });
+
       document.getElementById("start-screen").classList.remove("show");
       document.getElementById("quiz").classList.add("show");
       shuffledQuiz = shuffle([...quizData]);
@@ -242,21 +253,21 @@
     }
 
     function showScore() {
-  clearInterval(timer);
-  let message = score === shuffledQuiz.length
-    ? "🎉 Perfect Score!"
-    : score >= shuffledQuiz.length / 2
-    ? "👍 Good Job!"
-    : "📚 Keep Practicing!";
+      clearInterval(timer);
+      let message = score === shuffledQuiz.length
+        ? "🎉 Perfect Score!"
+        : score >= shuffledQuiz.length / 2
+        ? "👍 Good Job!"
+        : "📚 Keep Practicing!";
 
-  document.querySelector(".container").innerHTML = `
-    <div class="quiz-container show">
-      <h2 style="text-align:center;">Your Score: ${score} / ${shuffledQuiz.length}</h2>
-      <p style="text-align:center; margin: 15px 0; font-weight: bold;">${message}</p>
-      <button class="start-btn" onclick="location.reload()">Try Again</button>
-    </div>
-  `;
-}
+      document.querySelector(".container").innerHTML = `
+        <div class="quiz-container show">
+          <h2 style="text-align:center;">Your Score: ${score} / ${shuffledQuiz.length}</h2>
+          <p style="text-align:center; margin: 15px 0; font-weight: bold;">${message}</p>
+          <button class="start-btn" onclick="location.reload()">Try Again</button>
+        </div>
+      `;
+    }
 
     function updateTimer() {
       timeLeft--;
