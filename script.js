@@ -23,19 +23,26 @@ function shuffle(array) {
 }
 
 function startQuiz() {
-  musicEnabled = document.getElementById("music-toggle").checked;
+  const music = document.getElementById("bg-music");
+  if (musicEnabled) {
+    music.play().catch(err => console.log("Music play blocked:", err));
+  }
+  
   numberOfChoices = parseInt(document.getElementById("num-choices").value);
 
   const stored = localStorage.getItem("customQuestions");
   const customQuestions = stored ? JSON.parse(stored) : [];
+
   const allQuestions = quizData.concat(customQuestions);
 
-  document.querySelectorAll(".show").forEach(el => el.classList.remove("show"));
+  document.getElementById("start-screen").classList.remove("show");
+  document.getElementById("settings-screen").classList.remove("show");
   document.getElementById("quiz").classList.add("show");
 
   shuffledQuiz = shuffle([...allQuestions]);
   currentQuestion = 0;
   score = 0;
+
   loadQuestion();
 }
 
