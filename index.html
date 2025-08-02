@@ -122,16 +122,14 @@
     <button class="debug-btn" onclick="clearCustomQuestions()">Yes, Clear</button>
     <button class="start-btn" onclick="backToAdminPanel()">Back</button>
   </div>
-
 </div>
 
-<!-- Your existing quiz script -->
 <script src="script.js"></script>
 
-<!-- Firestore Feedback Script -->
+<!-- Firebase App (Core SDK) -->
 <script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-  import { getFirestore, collection, addDoc, getDocs, serverTimestamp, orderBy, query } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
+  import { getFirestore, collection, addDoc, getDocs } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
 
   const firebaseConfig = {
     apiKey: "AIzaSyD0YczZXnEp1Yup8aKpn-tzuaxUMOiDxVE",
@@ -139,14 +137,14 @@
     projectId: "kramzquiz",
     storageBucket: "kramzquiz.firebasestorage.app",
     messagingSenderId: "1085936591670",
-    appId: "1:1085936591670:web:7070a37f9d6d76ce9d0997",
-    measurementId: "G-CNGQ06ZFT0"
+    appId: "1:1085936591670:web:7070a37f9d6d76ce9d0997"
   };
 
   const app = initializeApp(firebaseConfig);
   const db = getFirestore(app);
 
-  window.submitFeedback = async function() {
+  // Save feedback to Firestore
+  window.submitFeedback = async function () {
     const text = document.getElementById("feedback-text").value.trim();
     const msg = document.getElementById("feedback-message");
 
@@ -157,21 +155,22 @@
     }
 
     try {
-      await addDoc(collection(db, "feedbacks"), {
+      await addDoc(collection(db, "feedback"), {
         message: text,
-        timestamp: serverTimestamp()
+        date: new Date().toLocaleString()
       });
       msg.innerText = "✅ Thank you for your feedback!";
       msg.style.color = "#4caf50";
       document.getElementById("feedback-text").value = "";
     } catch (error) {
-      console.error("Error adding feedback:", error);
-      msg.innerText = "❌ Failed to send feedback.";
-      msg.style.color = "red";
+      msg.innerText = "❌ Error sending feedback.";
+      msg.style.color = "#e53935";
+      console.error(error);
     }
   };
 
-  window.viewFeedbacks = async function() {
+  // View all feedback (Admin)
+  window.viewFeedbacks = async function () {
     document.getElementById("admin-panel").classList.remove("show");
     document.getElementById("feedback-view-panel").classList.add("show");
 
@@ -179,9 +178,7 @@
     list.innerHTML = "";
 
     try {
-      const q = query(collection(db, "feedbacks"), orderBy("timestamp", "desc"));
-      const querySnapshot = await getDocs(q);
-
+      const querySnapshot = await getDocs(collection(db, "feedback"));
       if (querySnapshot.empty) {
         list.innerHTML = "<p>No feedback yet.</p>";
       } else {
@@ -189,14 +186,13 @@
           const fb = doc.data();
           const fbDiv = document.createElement("div");
           fbDiv.style.marginBottom = "10px";
-          const date = fb.timestamp?.toDate().toLocaleString() || "Unknown date";
-          fbDiv.innerHTML = `<strong>Feedback ${i + 1}</strong> (${date}):<br>${fb.message}`;
+          fbDiv.innerHTML = `<strong>Feedback ${i + 1}</strong> (${fb.date}):<br>${fb.message}`;
           list.appendChild(fbDiv);
         });
       }
     } catch (error) {
-      console.error("Error loading feedbacks:", error);
-      list.innerHTML = "<p>❌ Failed to load feedback.</p>";
+      list.innerHTML = "<p>❌ Error loading feedback.</p>";
+      console.error(error);
     }
   };
 </script>

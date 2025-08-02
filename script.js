@@ -27,7 +27,7 @@ function startQuiz() {
   if (musicEnabled) {
     music.play().catch(err => console.log("Music play blocked:", err));
   }
-  
+
   numberOfChoices = parseInt(document.getElementById("num-choices").value);
 
   const stored = localStorage.getItem("customQuestions");
@@ -35,8 +35,7 @@ function startQuiz() {
 
   const allQuestions = quizData.concat(customQuestions);
 
-  document.getElementById("start-screen").classList.remove("show");
-  document.getElementById("settings-screen").classList.remove("show");
+  document.querySelectorAll(".show").forEach(el => el.classList.remove("show"));
   document.getElementById("quiz").classList.add("show");
 
   shuffledQuiz = shuffle([...allQuestions]);
@@ -212,11 +211,6 @@ function addCustomQuestion() {
   correctAnswerInput.value = "";
 }
 
-function openAdminPanel() {
-  document.querySelectorAll(".show").forEach(el => el.classList.remove("show"));
-  document.getElementById("admin-screen").classList.add("show");
-}
-
 function adminLogin() {
   const username = document.getElementById("admin-username").value.trim();
   const password = document.getElementById("admin-password").value.trim();
@@ -278,17 +272,16 @@ function deleteQuestion(index) {
   if (!confirm("Are you sure you want to delete this question?")) return;
 
   let saved = JSON.parse(localStorage.getItem("customQuestions")) || [];
-  saved.splice(index, 1); // Remove selected question
+  saved.splice(index, 1);
   localStorage.setItem("customQuestions", JSON.stringify(saved));
 
-  viewCustomQuestions(); // Refresh the list
+  viewCustomQuestions();
 }
 
 function clearCustomQuestions() {
   if (!confirm("⚠️ Are you sure you want to permanently delete all saved questions?")) {
-    return; // Cancel delete
+    return;
   }
-  
   localStorage.removeItem('customQuestions');
   document.getElementById('questions-list-container').innerHTML = '<p>All questions cleared.</p>';
 }
@@ -297,8 +290,6 @@ function showAdminLogin() {
   document.querySelectorAll(".show").forEach(el => el.classList.remove("show"));
   const loginBox = document.getElementById("admin-login");
   loginBox.classList.add("show");
-
-  // Autofocus on username field
   setTimeout(() => document.getElementById("admin-username").focus(), 100);
 }
 
@@ -306,44 +297,3 @@ function openFeedbackPanel() {
   document.getElementById("start-screen").classList.remove("show");
   document.getElementById("feedback-panel").classList.add("show");
 }
-
-// function submitFeedback() {
-//   const text = document.getElementById("feedback-text").value.trim();
-//   const msg = document.getElementById("feedback-message");
-
-//   if (!text) {
-//     msg.innerText = "⚠️ Please enter your feedback.";
-//     msg.style.color = "#e53935";
-//     return;
-//   }
-
-//   // Save to localStorage
-//   let feedbacks = JSON.parse(localStorage.getItem("feedbacks")) || [];
-//   feedbacks.push({ message: text, date: new Date().toLocaleString() });
-//   localStorage.setItem("feedbacks", JSON.stringify(feedbacks));
-
-//   msg.innerText = "✅ Thank you for your feedback!";
-//   msg.style.color = "#4caf50";
-//   document.getElementById("feedback-text").value = "";
-// }
-
-// function viewFeedbacks() {
-//   document.getElementById("admin-panel").classList.remove("show");
-//   document.getElementById("feedback-view-panel").classList.add("show");
-
-//   const list = document.getElementById("feedback-list");
-//   list.innerHTML = "";
-//   const feedbacks = JSON.parse(localStorage.getItem("feedbacks")) || [];
-
-//   if (feedbacks.length === 0) {
-//     list.innerHTML = "<p>No feedback yet.</p>";
-//   } else {
-//     feedbacks.forEach((fb, i) => {
-//       const fbDiv = document.createElement("div");
-//       fbDiv.style.marginBottom = "10px";
-//       fbDiv.innerHTML = `<strong>Feedback ${i + 1}</strong> (${fb.date}):<br>${fb.message}`;
-//       list.appendChild(fbDiv);
-//     });
-//   }
-// }
-
