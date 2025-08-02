@@ -108,7 +108,6 @@
     <button class="start-btn" onclick="backToAdminPanel()">Back</button>
   </div>
 
-
   <!-- View Panel -->
   <div id="view-panel" class="quiz-container">
     <h2>Saved Questions</h2>
@@ -126,6 +125,81 @@
 
 </div>
 
+<!-- Your existing quiz script -->
 <script src="script.js"></script>
+
+<!-- Firestore Feedback Script -->
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+  import { getFirestore, collection, addDoc, getDocs, serverTimestamp, orderBy, query } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyD0YczZXnEp1Yup8aKpn-tzuaxUMOiDxVE",
+    authDomain: "kramzquiz.firebaseapp.com",
+    projectId: "kramzquiz",
+    storageBucket: "kramzquiz.firebasestorage.app",
+    messagingSenderId: "1085936591670",
+    appId: "1:1085936591670:web:7070a37f9d6d76ce9d0997",
+    measurementId: "G-CNGQ06ZFT0"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
+
+  window.submitFeedback = async function() {
+    const text = document.getElementById("feedback-text").value.trim();
+    const msg = document.getElementById("feedback-message");
+
+    if (!text) {
+      msg.innerText = "⚠️ Please enter your feedback.";
+      msg.style.color = "#e53935";
+      return;
+    }
+
+    try {
+      await addDoc(collection(db, "feedbacks"), {
+        message: text,
+        timestamp: serverTimestamp()
+      });
+      msg.innerText = "✅ Thank you for your feedback!";
+      msg.style.color = "#4caf50";
+      document.getElementById("feedback-text").value = "";
+    } catch (error) {
+      console.error("Error adding feedback:", error);
+      msg.innerText = "❌ Failed to send feedback.";
+      msg.style.color = "red";
+    }
+  };
+
+  window.viewFeedbacks = async function() {
+    document.getElementById("admin-panel").classList.remove("show");
+    document.getElementById("feedback-view-panel").classList.add("show");
+
+    const list = document.getElementById("feedback-list");
+    list.innerHTML = "";
+
+    try {
+      const q = query(collection(db, "feedbacks"), orderBy("timestamp", "desc"));
+      const querySnapshot = await getDocs(q);
+
+      if (querySnapshot.empty) {
+        list.innerHTML = "<p>No feedback yet.</p>";
+      } else {
+        querySnapshot.forEach((doc, i) => {
+          const fb = doc.data();
+          const fbDiv = document.createElement("div");
+          fbDiv.style.marginBottom = "10px";
+          const date = fb.timestamp?.toDate().toLocaleString() || "Unknown date";
+          fbDiv.innerHTML = `<strong>Feedback ${i + 1}</strong> (${date}):<br>${fb.message}`;
+          list.appendChild(fbDiv);
+        });
+      }
+    } catch (error) {
+      console.error("Error loading feedbacks:", error);
+      list.innerHTML = "<p>❌ Failed to load feedback.</p>";
+    }
+  };
+</script>
+
 </body>
 </html>

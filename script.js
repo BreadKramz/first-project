@@ -307,43 +307,43 @@ function openFeedbackPanel() {
   document.getElementById("feedback-panel").classList.add("show");
 }
 
-function submitFeedback() {
-  const text = document.getElementById("feedback-text").value.trim();
-  const msg = document.getElementById("feedback-message");
+// function submitFeedback() {
+//   const text = document.getElementById("feedback-text").value.trim();
+//   const msg = document.getElementById("feedback-message");
 
-  if (!text) {
-    msg.innerText = "⚠️ Please enter your feedback.";
-    msg.style.color = "#e53935";
-    return;
-  }
+//   if (!text) {
+//     msg.innerText = "⚠️ Please enter your feedback.";
+//     msg.style.color = "#e53935";
+//     return;
+//   }
 
-  // Save to localStorage
-  let feedbacks = JSON.parse(localStorage.getItem("feedbacks")) || [];
-  feedbacks.push({ message: text, date: new Date().toLocaleString() });
-  localStorage.setItem("feedbacks", JSON.stringify(feedbacks));
+//   // Save to localStorage
+//   let feedbacks = JSON.parse(localStorage.getItem("feedbacks")) || [];
+//   feedbacks.push({ message: text, date: new Date().toLocaleString() });
+//   localStorage.setItem("feedbacks", JSON.stringify(feedbacks));
 
-  msg.innerText = "✅ Thank you for your feedback!";
-  msg.style.color = "#4caf50";
-  document.getElementById("feedback-text").value = "";
-}
+//   msg.innerText = "✅ Thank you for your feedback!";
+//   msg.style.color = "#4caf50";
+//   document.getElementById("feedback-text").value = "";
+// }
 
-function viewFeedbacks() {
-  document.getElementById("admin-panel").classList.remove("show");
-  document.getElementById("feedback-view-panel").classList.add("show");
+// function viewFeedbacks() {
+//   document.getElementById("admin-panel").classList.remove("show");
+//   document.getElementById("feedback-view-panel").classList.add("show");
 
-  const list = document.getElementById("feedback-list");
-  list.innerHTML = "";
-  const feedbacks = JSON.parse(localStorage.getItem("feedbacks")) || [];
+//   const list = document.getElementById("feedback-list");
+//   list.innerHTML = "";
+//   const feedbacks = JSON.parse(localStorage.getItem("feedbacks")) || [];
 
-  if (feedbacks.length === 0) {
-    list.innerHTML = "<p>No feedback yet.</p>";
-  } else {
-    feedbacks.forEach((fb, i) => {
-      const fbDiv = document.createElement("div");
-      fbDiv.style.marginBottom = "10px";
-      fbDiv.innerHTML = `<strong>Feedback ${i + 1}</strong> (${fb.date}):<br>${fb.message}`;
-      list.appendChild(fbDiv);
-    });
-  }
-}
+//   if (feedbacks.length === 0) {
+//     list.innerHTML = "<p>No feedback yet.</p>";
+//   } else {
+//     feedbacks.forEach((fb, i) => {
+//       const fbDiv = document.createElement("div");
+//       fbDiv.style.marginBottom = "10px";
+//       fbDiv.innerHTML = `<strong>Feedback ${i + 1}</strong> (${fb.date}):<br>${fb.message}`;
+//       list.appendChild(fbDiv);
+//     });
+//   }
+// }
 
