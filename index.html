@@ -124,78 +124,8 @@
   </div>
 </div>
 
-<script src="script.js"></script>
-
-<!-- Firebase App (Core SDK) -->
-<script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
-  import { getFirestore, collection, addDoc, getDocs } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
-
-  const firebaseConfig = {
-    apiKey: "AIzaSyD0YczZXnEp1Yup8aKpn-tzuaxUMOiDxVE",
-    authDomain: "kramzquiz.firebaseapp.com",
-    projectId: "kramzquiz",
-    storageBucket: "kramzquiz.firebasestorage.app",
-    messagingSenderId: "1085936591670",
-    appId: "1:1085936591670:web:7070a37f9d6d76ce9d0997"
-  };
-
-  const app = initializeApp(firebaseConfig);
-  const db = getFirestore(app);
-
-  // Save feedback to Firestore
-  window.submitFeedback = async function () {
-    const text = document.getElementById("feedback-text").value.trim();
-    const msg = document.getElementById("feedback-message");
-
-    if (!text) {
-      msg.innerText = "⚠️ Please enter your feedback.";
-      msg.style.color = "#e53935";
-      return;
-    }
-
-    try {
-      await addDoc(collection(db, "feedback"), {
-        message: text,
-        date: new Date().toLocaleString()
-      });
-      msg.innerText = "✅ Thank you for your feedback!";
-      msg.style.color = "#4caf50";
-      document.getElementById("feedback-text").value = "";
-    } catch (error) {
-      msg.innerText = "❌ Error sending feedback.";
-      msg.style.color = "#e53935";
-      console.error(error);
-    }
-  };
-
-  // View all feedback (Admin)
-  window.viewFeedbacks = async function () {
-    document.getElementById("admin-panel").classList.remove("show");
-    document.getElementById("feedback-view-panel").classList.add("show");
-
-    const list = document.getElementById("feedback-list");
-    list.innerHTML = "";
-
-    try {
-      const querySnapshot = await getDocs(collection(db, "feedback"));
-      if (querySnapshot.empty) {
-        list.innerHTML = "<p>No feedback yet.</p>";
-      } else {
-        querySnapshot.forEach((doc, i) => {
-          const fb = doc.data();
-          const fbDiv = document.createElement("div");
-          fbDiv.style.marginBottom = "10px";
-          fbDiv.innerHTML = `<strong>Feedback ${i + 1}</strong> (${fb.date}):<br>${fb.message}`;
-          list.appendChild(fbDiv);
-        });
-      }
-    } catch (error) {
-      list.innerHTML = "<p>❌ Error loading feedback.</p>";
-      console.error(error);
-    }
-  };
-</script>
+<!-- Now script.js handles everything including Firebase -->
+<script type="module" src="script.js"></script>
 
 </body>
 </html>

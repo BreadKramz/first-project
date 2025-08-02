@@ -1,3 +1,74 @@
+// ===== Firebase Setup =====
+import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
+import { getFirestore, collection, addDoc, getDocs, query, orderBy } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyD0YczZXnEp1Yup8aKpn-tzuaxUMOiDxVE",
+  authDomain: "kramzquiz.firebaseapp.com",
+  projectId: "kramzquiz",
+  storageBucket: "kramzquiz.firebasestorage.app",
+  messagingSenderId: "1085936591670",
+  appId: "1:1085936591670:web:7070a37f9d6d76ce9d0997"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+// Submit feedback
+window.submitFeedback = async function () {
+  const text = document.getElementById("feedback-text").value.trim();
+  const msg = document.getElementById("feedback-message");
+
+  if (!text) {
+    msg.innerText = "⚠️ Please enter your feedback.";
+    msg.style.color = "#e53935";
+    return;
+  }
+
+  try {
+    await addDoc(collection(db, "feedback"), {
+      message: text,
+      date: new Date().toLocaleString()
+    });
+    msg.innerText = "✅ Thank you for your feedback!";
+    msg.style.color = "#4caf50";
+    document.getElementById("feedback-text").value = "";
+  } catch (error) {
+    msg.innerText = "❌ Error sending feedback.";
+    msg.style.color = "#e53935";
+    console.error(error);
+  }
+};
+
+// View all feedback in admin panel
+window.viewFeedbacks = async function () {
+  document.querySelectorAll(".show").forEach(el => el.classList.remove("show"));
+  document.getElementById("feedback-view-panel").classList.add("show");
+
+  const list = document.getElementById("feedback-list");
+  list.innerHTML = "<p>Loading...</p>";
+
+  try {
+    const qSnap = await getDocs(query(collection(db, "feedback"), orderBy("date", "desc")));
+    if (qSnap.empty) {
+      list.innerHTML = "<p>No feedback yet.</p>";
+    } else {
+      list.innerHTML = "";
+      qSnap.forEach((doc, i) => {
+        const fb = doc.data();
+        const fbDiv = document.createElement("div");
+        fbDiv.style.marginBottom = "10px";
+        fbDiv.innerHTML = `<strong>Feedback ${i + 1}</strong> (${fb.date}):<br>${fb.message}`;
+        list.appendChild(fbDiv);
+      });
+    }
+  } catch (error) {
+    list.innerHTML = "<p>❌ Error loading feedback.</p>";
+    console.error(error);
+  }
+};
+
+// ===== Your Quiz Logic (unchanged) =====
 const quizData = [
   { question: "What is my name?", options: ["Gwapo", "Pogi", "Kramz", "Mark"], answer: 3 },
   { question: "How old am I?", options: ["19", "20", "22", "21"], answer: 1 },
