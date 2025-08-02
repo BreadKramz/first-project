@@ -1,6 +1,11 @@
 // ===== Firebase Setup =====
-import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
-import { getFirestore, collection, addDoc, getDocs, query, orderBy } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
+import { 
+  initializeApp 
+} from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
+
+import { 
+  getFirestore, collection, addDoc, getDocs, query, orderBy, Timestamp 
+} from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyD0YczZXnEp1Yup8aKpn-tzuaxUMOiDxVE",
@@ -14,7 +19,7 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
-// Submit feedback
+// ===== Submit feedback =====
 window.submitFeedback = async function () {
   const text = document.getElementById("feedback-text").value.trim();
   const msg = document.getElementById("feedback-message");
@@ -28,7 +33,7 @@ window.submitFeedback = async function () {
   try {
     await addDoc(collection(db, "feedback"), {
       message: text,
-      date: new Date().toLocaleString()
+      date: Timestamp.now()
     });
     msg.innerText = "✅ Thank you for your feedback!";
     msg.style.color = "#4caf50";
@@ -40,7 +45,7 @@ window.submitFeedback = async function () {
   }
 };
 
-// View all feedback in admin panel
+// ===== View feedback =====
 window.viewFeedbacks = async function () {
   document.querySelectorAll(".show").forEach(el => el.classList.remove("show"));
   document.getElementById("feedback-view-panel").classList.add("show");
@@ -56,9 +61,10 @@ window.viewFeedbacks = async function () {
       list.innerHTML = "";
       qSnap.forEach((doc, i) => {
         const fb = doc.data();
+        const dateStr = fb.date.toDate().toLocaleString();
         const fbDiv = document.createElement("div");
         fbDiv.style.marginBottom = "10px";
-        fbDiv.innerHTML = `<strong>Feedback ${i + 1}</strong> (${fb.date}):<br>${fb.message}`;
+        fbDiv.innerHTML = `<strong>Feedback ${i + 1}</strong> (${dateStr}):<br>${fb.message}`;
         list.appendChild(fbDiv);
       });
     }
@@ -68,7 +74,7 @@ window.viewFeedbacks = async function () {
   }
 };
 
-// ===== Your Quiz Logic (unchanged) =====
+// ===== Quiz Data =====
 const quizData = [
   { question: "What is my name?", options: ["Gwapo", "Pogi", "Kramz", "Mark"], answer: 3 },
   { question: "How old am I?", options: ["19", "20", "22", "21"], answer: 1 },
@@ -93,7 +99,7 @@ function shuffle(array) {
   return array;
 }
 
-function startQuiz() {
+window.startQuiz = function () {
   const music = document.getElementById("bg-music");
   if (musicEnabled) {
     music.play().catch(err => console.log("Music play blocked:", err));
@@ -114,12 +120,12 @@ function startQuiz() {
   score = 0;
 
   loadQuestion();
-}
+};
 
-function toggleSettings() {
+window.toggleSettings = function () {
   document.querySelectorAll(".show").forEach(el => el.classList.remove("show"));
   document.getElementById("settings-screen").classList.add("show");
-}
+};
 
 function loadQuestion() {
   clearInterval(timer);
@@ -173,14 +179,14 @@ function selectAnswer(index) {
   document.getElementById("next-btn").style.display = "block";
 }
 
-function nextQuestion() {
+window.nextQuestion = function () {
   currentQuestion++;
   if (currentQuestion < shuffledQuiz.length) {
     loadQuestion();
   } else {
     showScore();
   }
-}
+};
 
 function showScore() {
   clearInterval(timer);
@@ -198,10 +204,10 @@ function showScore() {
     : "📚 Keep Practicing!";
 }
 
-function returnToStart() {
+window.returnToStart = function () {
   document.querySelectorAll(".show").forEach(el => el.classList.remove("show"));
   document.getElementById("start-screen").classList.add("show");
-}
+};
 
 function updateTimer() {
   timeLeft--;
@@ -232,28 +238,28 @@ window.addEventListener("DOMContentLoaded", () => {
   });
 });
 
-function toggleAddQuestion() {
+window.toggleAddQuestion = function () {
   document.querySelectorAll(".show").forEach(el => el.classList.remove("show"));
   document.getElementById("add-question-screen").classList.add("show");
-}
+};
 
-function toggleViewPanel() {
+window.toggleViewPanel = function () {
   document.querySelectorAll(".show").forEach(el => el.classList.remove("show"));
   document.getElementById("view-panel").classList.add("show");
   viewCustomQuestions();
-}
+};
 
-function toggleClearPanel() {
+window.toggleClearPanel = function () {
   document.querySelectorAll(".show").forEach(el => el.classList.remove("show"));
   document.getElementById("clear-panel").classList.add("show");
-}
+};
 
-function backToStart() {
+window.backToStart = function () {
   document.querySelectorAll(".show").forEach(el => el.classList.remove("show"));
   document.getElementById("start-screen").classList.add("show");
-}
+};
 
-function addCustomQuestion() {
+window.addCustomQuestion = function () {
   const questionInput = document.getElementById("new-question");
   const choiceInputs = document.querySelectorAll(".choice-input");
   const correctAnswerInput = document.getElementById("correct-answer");
@@ -280,9 +286,9 @@ function addCustomQuestion() {
   questionInput.value = "";
   choiceInputs.forEach(input => input.value = "");
   correctAnswerInput.value = "";
-}
+};
 
-function adminLogin() {
+window.adminLogin = function () {
   const username = document.getElementById("admin-username").value.trim();
   const password = document.getElementById("admin-password").value.trim();
   const feedback = document.getElementById("admin-feedback");
@@ -295,23 +301,23 @@ function adminLogin() {
     feedback.innerText = "❌ Incorrect username or password.";
     feedback.style.color = "#e53935";
   }
-}
+};
 
-function goToViewPanel() {
+window.goToViewPanel = function () {
   document.querySelectorAll(".show").forEach(el => el.classList.remove("show"));
   document.getElementById("view-panel").classList.add("show");
   viewCustomQuestions();
-}
+};
 
-function goToClearPanel() {
+window.goToClearPanel = function () {
   document.querySelectorAll(".show").forEach(el => el.classList.remove("show"));
   document.getElementById("clear-panel").classList.add("show");
-}
+};
 
-function backToAdminPanel() {
+window.backToAdminPanel = function () {
   document.querySelectorAll(".show").forEach(el => el.classList.remove("show"));
   document.getElementById("admin-panel").classList.add("show");
-}
+};
 
 function viewCustomQuestions() {
   const container = document.getElementById("questions-list-container");
@@ -339,7 +345,7 @@ function viewCustomQuestions() {
   }
 }
 
-function deleteQuestion(index) {
+window.deleteQuestion = function (index) {
   if (!confirm("Are you sure you want to delete this question?")) return;
 
   let saved = JSON.parse(localStorage.getItem("customQuestions")) || [];
@@ -347,24 +353,24 @@ function deleteQuestion(index) {
   localStorage.setItem("customQuestions", JSON.stringify(saved));
 
   viewCustomQuestions();
-}
+};
 
-function clearCustomQuestions() {
+window.clearCustomQuestions = function () {
   if (!confirm("⚠️ Are you sure you want to permanently delete all saved questions?")) {
     return;
   }
   localStorage.removeItem('customQuestions');
   document.getElementById('questions-list-container').innerHTML = '<p>All questions cleared.</p>';
-}
+};
 
-function showAdminLogin() {
+window.showAdminLogin = function () {
   document.querySelectorAll(".show").forEach(el => el.classList.remove("show"));
   const loginBox = document.getElementById("admin-login");
   loginBox.classList.add("show");
   setTimeout(() => document.getElementById("admin-username").focus(), 100);
-}
+};
 
-function openFeedbackPanel() {
+window.openFeedbackPanel = function () {
   document.getElementById("start-screen").classList.remove("show");
   document.getElementById("feedback-panel").classList.add("show");
-}
+};
